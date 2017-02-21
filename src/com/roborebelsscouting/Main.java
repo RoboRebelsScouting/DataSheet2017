@@ -105,29 +105,15 @@ public class Main {
             while (rs.next()) {
                 int rn = rs.getInt("RobotNumber");
                 if (haveRobot(rn)) {
-                    getRobot(rn).climb.total = rs.getInt("Climb");
-                    getRobot(rn).autoCross.total = rs.getInt("autoCross");
-                    getRobot(rn).autoGears.total = rs.getInt("autoGears");
-                    getRobot(rn).lowShots.total = rs.getInt("lowShots");
-                    getRobot(rn).highAttempt.total = rs.getInt("highAttempts");
-                    getRobot(rn).gears.total = rs.getInt("gears");
-                    getRobot(rn).accuracy = rs.getInt("accuracy");
-                }
-            }
-            rs.close();
-            rs = stmt.executeQuery("SELECT * from matchtable");
-            while (rs.next()) {
-                int rn = rs.getInt("RobotNumber");
-                if (haveRobot(rn)) {
-                    String gameEvent = rs.getString("GameEvent");
-                    String subEvent = rs.getString("SubEvent");
+                    String gameEvent = rs.getString("gameEvent");
                     String phase = rs.getString("phaseOfMatch");
-                    if (phase.equals("auto") && subEvent.equals("Cross")) {
-                        getRobot(rn).autoCross.total++;
-                    }
-                    if (gameEvent.equals("Climb") && subEvent.equals("Succeed")) {
-                        getRobot(rn).climb.total++;
-                    }
+                    if (phase.equals("crossBaselineAuto")){getRobot(rn).autoCross.total++;}
+                    if (gameEvent.equals("climbed")){getRobot(rn).climb.total++;}
+                    if (phase.equals("gearPlacedAuto")){getRobot(rn).autoGears.total++;}
+                    if (phase.equals("lowGoal")){getRobot(rn).lowShots.total++;}
+                    if (phase.equals("highGoal")){getRobot(rn).highAttempt.total++;}
+                    if (phase.equals("gearPlacedTeleop") || phase.equals("gearPlacedAuto")){getRobot(rn).gears.total++;}
+
                 }
             }
             rs.close();

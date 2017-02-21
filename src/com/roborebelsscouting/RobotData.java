@@ -22,6 +22,7 @@ public class RobotData {
 
     public double accuracy;
     public int accuracyRank;
+    public int approaches;
 
     public RobotData() {
         robotNumber = 0;
