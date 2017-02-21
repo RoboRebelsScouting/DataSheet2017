@@ -33,5 +33,6 @@ public class RobotData {
         highAttempt = new DataGroup();
         climb = new DataGroup();
         accuracy = 0;
+        accuracyRank = 0;
     }
 }

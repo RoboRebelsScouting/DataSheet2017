@@ -8,7 +8,6 @@ import java.util.Comparator;
 
 public class Main {
     public Writer writer = null;
-
     public ArrayList<RobotData> robotList = new ArrayList<RobotData>();
     public void createHeader(int robotNumber) {
         String outString = "<html>\n";
@@ -48,7 +47,6 @@ public class Main {
         }
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
     public void createTableIntRow(String tableText, int tableData) {
         String outString = "<tr>" + "\n";
         outString += "<td>" + tableText + "</td>\n";
@@ -64,6 +62,7 @@ public class Main {
 
     public static void main(String[] args) {
         // write your code here
+        new Main().getDataFromDB();
     }
 
     public void getDataFromDB() {
@@ -78,8 +77,8 @@ public class Main {
 
         try {
             Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/roborebels", "root", "roborebels1153");
-            Statement stmt = null;
-            ResultSet rs = null;
+            Statement stmt;
+            ResultSet rs;
 
             //create hashmap of data
             stmt = conn.createStatement();
@@ -184,6 +183,11 @@ public class Main {
                 createTableIntRow("Low Shooting Rank", r.lowShots.rank);
                 writer.write("</table>\n");
 
+                writer.write("</body>\n");
+                writer.write("</html>\n");
+
+                writer.close();
+
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -193,14 +197,12 @@ public class Main {
 
     // check the robot list to see if we have a robot already with the given number
     public boolean haveRobot(int robotNumber) {
-        boolean doHaveRobot = false;
-
         for (RobotData r : robotList) {
             if (r.robotNumber == robotNumber) {
                 return true;
             }
         }
-        return doHaveRobot;
+        return false;
     }
 
     // get the robot with the given robotNumber from the list
