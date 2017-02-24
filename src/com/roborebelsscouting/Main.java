@@ -7,6 +7,8 @@ import java.util.Collections;
 import java.util.Comparator;
 
 public class Main {
+
+    public static String dataSheetDir = "C:\\Users\\1153\\Documents\\Datasheets";
     public Writer writer = null;
     public ArrayList<RobotData> robotList = new ArrayList<RobotData>();
     public void createHeader(int robotNumber) {
@@ -66,8 +68,15 @@ public class Main {
     }
 
     public void getDataFromDB() {
+
+        // make directory if not found
+        File dataSheetDirFile = new File(dataSheetDir);
+        if (dataSheetDirFile.exists() == false) {
+            dataSheetDirFile.mkdir();
+        }
+
         try {
-            Class.forName("com.mysql.jdbc");
+            Class.forName("com.mysql.jdbc.Driver");
         } catch (ClassNotFoundException e) {
             System.out.println("My SQL JDBC Driver Not Registered?");
             e.printStackTrace();
@@ -138,7 +147,7 @@ public class Main {
         for (RobotData r : robotList) {
             try {
                 System.out.println("Robot Number: " + r.robotNumber);
-                String fileName = File.separator + r.robotNumber + ".html";
+                String fileName = dataSheetDir + File.separator + r.robotNumber + ".html";
                 File oldFile = new File(fileName);
 
                 if (oldFile.exists()) {
