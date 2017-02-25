@@ -1,10 +1,15 @@
 package com.roborebelsscouting;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by elmhursts20 on 2/19/2017
  */
 public class RobotData {
     public int robotNumber;
+
+    public List<Integer> matchList;
 
     public int matches;
 
@@ -35,5 +40,7 @@ public class RobotData {
         climb = new DataGroup();
         accuracy = 0;
         accuracyRank = 0;
+
+        matchList = new ArrayList<Integer>();
     }
 }

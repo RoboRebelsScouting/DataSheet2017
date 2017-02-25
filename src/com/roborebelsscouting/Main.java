@@ -93,35 +93,43 @@ public class Main {
             stmt = conn.createStatement();
 
             //get match table, then create robots
-            rs = stmt.executeQuery("SELECT * from matchtable");
+            rs = stmt.executeQuery("SELECT * from matchdata");
 
             //process Data
             RobotData rd;
             while (rs.next()) {
                 int rn = rs.getInt("RobotNumber");
                 String matchName = rs.getString("matchNumber");
+                Integer matchNumber = Integer.parseInt(matchName);
 
                 if (haveRobot(rn)) {
-                    getRobot(rn).matches++;
+                    // check to see if we have this match number already, if not, add it to the list and increase
+                    // number of matches
+                    if (getRobot(rn).matchList.contains(matchNumber) == false) {
+                        getRobot(rn).matches++;
+                        getRobot(rn).matchList.add(matchNumber);
+                    }
                 } else {
                     rd = new RobotData();
                     rd.robotNumber = rn;
                     rd.matches = 1;
+                    rd.matchList.add(matchNumber);
+                    robotList.add(rd);
+
                 }
             }
             rs.close();
-            rs = stmt.executeQuery("SELECT * from matchtable");
+            rs = stmt.executeQuery("SELECT * from matchdata");
             while (rs.next()) {
                 int rn = rs.getInt("RobotNumber");
                 if (haveRobot(rn)) {
                     String gameEvent = rs.getString("gameEvent");
-                    String phase = rs.getString("phaseOfMatch");
-                    if (phase.equals("crossBaselineAuto")){getRobot(rn).autoCross.total++;}
+                    if (gameEvent.equals("crossBaselineAuto")){getRobot(rn).autoCross.total++;}
                     if (gameEvent.equals("climbed")){getRobot(rn).climb.total++;}
-                    if (phase.equals("gearPlacedAuto")){getRobot(rn).autoGears.total++;}
-                    if (phase.equals("lowGoal")){getRobot(rn).lowShots.total++;}
-                    if (phase.equals("highGoal")){getRobot(rn).highAttempt.total++;}
-                    if (phase.equals("gearPlacedTeleop") || phase.equals("gearPlacedAuto")){getRobot(rn).gears.total++;}
+                    if (gameEvent.equals("gearPlacedAuto")){getRobot(rn).autoGears.total++;}
+                    if (gameEvent.equals("lowGoal")){getRobot(rn).lowShots.total++;}
+                    if (gameEvent.equals("highGoal")){getRobot(rn).highAttempt.total++;}
+                    if (gameEvent.equals("gearPlacedTeleop") || gameEvent.equals("gearPlacedAuto")){getRobot(rn).gears.total++;}
 
                 }
             }
