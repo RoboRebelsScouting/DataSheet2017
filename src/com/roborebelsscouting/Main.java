@@ -36,10 +36,11 @@ public class Main {
             e.printStackTrace();
         }
     }
-    public void createTableFloatRow(String tableText, float tableData) {
+    public void createTableCategoryRow(String tableText, DataGroup dg) {
         String outString = "<tr>" + "\n";
         outString += "<td>" + tableText + "</td>\n";
-        outString += "<td>" + String.format("%.2f", tableData) + "</td>\n";
+        outString += "<td>" + String.format("%.2f", dg.avg) + "</td>\n";
+        outString += "<td>" + String.format("%d", dg.rank) + "</td>\n";
         outString += "</tr>\n";
 
         try {
@@ -49,10 +50,11 @@ public class Main {
         }
     }
 
-    public void createTableIntRow(String tableText, int tableData) {
+    public void createTableHeader() {
         String outString = "<tr>" + "\n";
-        outString += "<td>" + tableText + "</td>\n";
-        outString += "<td>" + tableData + "</td>\n";
+        outString += "<th>" + "Category" + "</th>\n";
+        outString += "<th>" + "Average" + "</th>\n";
+        outString += "<th>" + "Rank" + "</th>\n";
         outString += "</tr>\n";
 
         try {
@@ -168,23 +170,19 @@ public class Main {
 
                 writer.write("<body>\n");
 
-                writer.write("<table>\n");
-                createTableFloatRow("Avg Auto Crossing", (float) r.autoCross.avg);
-                createTableFloatRow("Avg Auto Gear Scoring", (float) r.autoGears.avg);
-                createTableFloatRow("Avg Climbing", (float) r.climb.avg);
-                createTableFloatRow("Avg Gear Scoring", (float) r.gears.avg);
-                createTableFloatRow("Avg High Shooting", (float) r.highAttempt.avg);
-                createTableFloatRow("Avg Low Shooting", (float) r.lowShots.avg);
-                writer.write("</table>\n");
+                writer.write("<img src=\"" + r.robotNumber + ".jpg\" alt=\"ROBOT " + r.robotNumber + " is probably broken or invisible.\" style=\"width:304px;height:228px;\">");
 
                 writer.write("<table>\n");
-                createTableIntRow("Auto Crossing Rank", r.autoCross.rank);
-                createTableIntRow("Auto Gear Scoring Rank", r.autoGears.rank);
-                createTableIntRow("Climbing Rank", r.climb.rank);
-                createTableIntRow("Gear Scoring Rank", r.gears.rank);
-                createTableIntRow("High Shooting Rank", r.highAttempt.rank);
-                createTableIntRow("Low Shooting Rank", r.lowShots.rank);
+                createTableHeader();
+                createTableCategoryRow("Auto Crossing", r.autoCross);
+                createTableCategoryRow("Auto Gear Scoring", r.autoGears);
+                createTableCategoryRow("Climbing", r.climb);
+                createTableCategoryRow("Gear Scoring", r.gears);
+                createTableCategoryRow("High Shooting", r.highAttempt);
+                createTableCategoryRow("Low Shooting", r.lowShots);
                 writer.write("</table>\n");
+
+                writer.write("Matches: " + r.matches);
 
                 writer.write("</body>\n");
                 writer.write("</html>\n");
