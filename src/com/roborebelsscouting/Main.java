@@ -8,7 +8,9 @@ import java.util.Comparator;
 
 public class Main {
 
-    public static String dataSheetDir = "C:\\Users\\1153\\Documents\\Datasheets";
+    public static String userDir = System.getProperty("user.home");
+    //public static String dataSheetDir = "C:\\Users\\1153\\Documents\\Datasheets";
+    public static String dataSheetDir = userDir + "\\Documents\\Datasheets";
     public Writer writer = null;
     public ArrayList<RobotData> robotList = new ArrayList<RobotData>();
     public void createHeader(int robotNumber) {
@@ -234,7 +236,16 @@ public class Main {
         });
         // now loop through the lists and set the rank based on avg score
         for (int c = 0; c < rankList.size(); c++) {
-            getRobot(rankList.get(c).robotNumber).lowShots.rank = c + 1;
+            if (c > 0) {
+                int prev_rank = getRobot(rankList.get(c-1).robotNumber).lowShots.rank;
+                if (getRobot(rankList.get(c).robotNumber).lowShots.avg < getRobot(rankList.get(c-1).robotNumber).lowShots.avg) {
+                    getRobot(rankList.get(c).robotNumber).lowShots.rank = prev_rank + 1;
+                } else {
+                    getRobot(rankList.get(c).robotNumber).lowShots.rank = prev_rank;
+                }
+            } else {
+                getRobot(rankList.get(c).robotNumber).lowShots.rank = 1;
+            }
         }
 
         Collections.sort(rankList, new Comparator<RobotData>() {
@@ -246,9 +257,17 @@ public class Main {
         });
         // now loop through the lists and set the rank based on avg score
         for (int c = 0; c < rankList.size(); c++) {
-            getRobot(rankList.get(c).robotNumber).highAttempt.rank = c + 1;
+            if (c > 0) {
+                int prev_rank = getRobot(rankList.get(c-1).robotNumber).highAttempt.rank;
+                if (getRobot(rankList.get(c).robotNumber).highAttempt.avg < getRobot(rankList.get(c-1).robotNumber).highAttempt.avg) {
+                    getRobot(rankList.get(c).robotNumber).highAttempt.rank = prev_rank + 1;
+                } else {
+                    getRobot(rankList.get(c).robotNumber).highAttempt.rank = prev_rank;
+                }
+            } else {
+                getRobot(rankList.get(c).robotNumber).highAttempt.rank = 1;
+            }
         }
-
         Collections.sort(rankList, new Comparator<RobotData>() {
             public int compare(RobotData o1, RobotData o2) {
                 if (o1.autoCross.avg == o2.autoCross.avg)
@@ -260,6 +279,18 @@ public class Main {
         for (int c = 0; c < rankList.size(); c++) {
             getRobot(rankList.get(c).robotNumber).autoCross.rank = c + 1;
         }
+        for (int c = 0; c < rankList.size(); c++) {
+            if (c > 0) {
+                int prev_rank = getRobot(rankList.get(c-1).robotNumber).autoCross.rank;
+                if (getRobot(rankList.get(c).robotNumber).autoCross.avg < getRobot(rankList.get(c-1).robotNumber).autoCross.avg) {
+                    getRobot(rankList.get(c).robotNumber).autoCross.rank = prev_rank + 1;
+                } else {
+                    getRobot(rankList.get(c).robotNumber).autoCross.rank = prev_rank;
+                }
+            } else {
+                getRobot(rankList.get(c).robotNumber).autoCross.rank = 1;
+            }
+        }
 
         Collections.sort(rankList, new Comparator<RobotData>() {
             public int compare(RobotData o1, RobotData o2) {
@@ -270,9 +301,17 @@ public class Main {
         });
         // now loop through the lists and set the rank based on avg score
         for (int c = 0; c < rankList.size(); c++) {
-            getRobot(rankList.get(c).robotNumber).autoGears.rank = c + 1;
+            if (c > 0) {
+                int prev_rank = getRobot(rankList.get(c-1).robotNumber).autoGears.rank;
+                if (getRobot(rankList.get(c).robotNumber).autoGears.avg < getRobot(rankList.get(c-1).robotNumber).autoGears.avg) {
+                    getRobot(rankList.get(c).robotNumber).autoGears.rank = prev_rank + 1;
+                } else {
+                    getRobot(rankList.get(c).robotNumber).autoGears.rank = prev_rank;
+                }
+            } else {
+                getRobot(rankList.get(c).robotNumber).autoGears.rank = 1;
+            }
         }
-
         Collections.sort(rankList, new Comparator<RobotData>() {
             public int compare(RobotData o1, RobotData o2) {
                 if (o1.gears.avg == o2.gears.avg)
@@ -282,7 +321,16 @@ public class Main {
         });
         // now loop through the lists and set the rank based on avg score
         for (int c = 0; c < rankList.size(); c++) {
-            getRobot(rankList.get(c).robotNumber).gears.rank = c + 1;
+            if (c > 0) {
+                int prev_rank = getRobot(rankList.get(c-1).robotNumber).gears.rank;
+                if (getRobot(rankList.get(c).robotNumber).gears.avg < getRobot(rankList.get(c-1).robotNumber).gears.avg) {
+                    getRobot(rankList.get(c).robotNumber).gears.rank = prev_rank + 1;
+                } else {
+                    getRobot(rankList.get(c).robotNumber).gears.rank = prev_rank;
+                }
+            } else {
+                getRobot(rankList.get(c).robotNumber).gears.rank = 1;
+            }
         }
 
         Collections.sort(rankList, new Comparator<RobotData>() {
@@ -294,9 +342,17 @@ public class Main {
         });
         // now loop through the lists and set the rank based on avg score
         for (int c = 0; c < rankList.size(); c++) {
-            getRobot(rankList.get(c).robotNumber).climb.rank = c + 1;
+            if (c > 0) {
+                int prev_rank = getRobot(rankList.get(c-1).robotNumber).climb.rank;
+                if (getRobot(rankList.get(c).robotNumber).climb.avg < getRobot(rankList.get(c-1).robotNumber).climb.avg) {
+                    getRobot(rankList.get(c).robotNumber).climb.rank = prev_rank + 1;
+                } else {
+                    getRobot(rankList.get(c).robotNumber).climb.rank = prev_rank;
+                }
+            } else {
+                getRobot(rankList.get(c).robotNumber).climb.rank = 1;
+            }
         }
-
         Collections.sort(rankList, new Comparator<RobotData>() {
             public int compare(RobotData o1, RobotData o2) {
                 if (o1.accuracy == o2.accuracy)
