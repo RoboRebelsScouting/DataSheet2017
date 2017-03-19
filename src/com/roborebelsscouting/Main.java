@@ -5,12 +5,12 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 public class Main {
 
     public static String userDir = System.getProperty("user.home");
-    //public static String dataSheetDir = "C:\\Users\\1153\\Documents\\Datasheets";
-    public static String dataSheetDir = userDir + "\\Documents\\Datasheets";
+    public static String dataSheetDir = userDir + File.separator + "Documents" + File.separator + "Datasheets";
     public Writer writer = null;
     public ArrayList<RobotData> robotList = new ArrayList<RobotData>();
     public void createHeader(int robotNumber) {
@@ -131,8 +131,11 @@ public class Main {
                     if (gameEvent.equals("crossBaselineAuto")){getRobot(rn).autoCross.total++;}
                     if (gameEvent.equals("climbed")){getRobot(rn).climb.total++;}
                     if (gameEvent.equals("gearPlacedAuto")){getRobot(rn).autoGears.total++;}
+                    if (gameEvent.equals("gearPlacedTeleop")){getRobot(rn).teleGears.total++;}
                     if (gameEvent.equals("lowGoal")){getRobot(rn).lowShots.total++;}
                     if (gameEvent.equals("highGoal")){getRobot(rn).highAttempt.total++;}
+                    if (gameEvent.equals("lowGoalAuto")){getRobot(rn).autoLowShots.total++;}
+                    if (gameEvent.equals("highGoalAuto")){getRobot(rn).autoHighShots.total++;}
                     if (gameEvent.equals("gearPlacedTeleop") || gameEvent.equals("gearPlacedAuto")){getRobot(rn).gears.total++;}
 
                 }
@@ -142,8 +145,11 @@ public class Main {
 
             //averages
             for (RobotData r : robotList) {
+                r.autoLowShots.avg = (double) r.autoLowShots.total / r.matches;
+                r.autoHighShots.avg = (double) r.autoHighShots.total / r.matches;
                 r.autoCross.avg = (double) r.autoCross.total / r.matches;
                 r.autoGears.avg = (double) r.autoGears.total / r.matches;
+                r.teleGears.avg = (double) r.teleGears.total / r.matches;
                 r.climb.avg = (double) r.climb.total / r.matches;
                 r.gears.avg = (double) r.gears.total / r.matches;
                 r.highAttempt.avg = (double) r.highAttempt.total / r.matches;
@@ -196,6 +202,69 @@ public class Main {
             }
         }
 
+        // write a csv of all possible combinations of alliances with us, team 1153
+        List<Integer> teamList = new ArrayList<Integer>();
+        for (RobotData r : robotList) {
+            if (r.robotNumber != 1153) {
+                teamList.add(r.robotNumber);
+            }
+        }
+
+        List<AllianceData> adList = new ArrayList<AllianceData>();
+
+        try {
+            String fileName = dataSheetDir + File.separator + "allianceData.csv";
+            File oldFile = new File(fileName);
+
+            if (oldFile.exists()) {
+                oldFile.delete();
+            }
+            writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName), "utf-8"));
+
+            String outputString;
+            writer.write("robot1,robot2,robot3,Average Auto Fuel,Average Tele Fuel, Average Auto Gear, Average Tele Gear, Average Tele Climb, Predicted Score\n");
+
+            for (Integer t2 : teamList) {
+                for (Integer t3 : teamList) {
+                    if (t3 != t2) {
+                        AllianceData ad = new AllianceData();
+                        ad.robot1 = 1153;
+                        ad.robot2 = t2;
+                        ad.robot3 = t3;
+
+                        // create the combined averages
+                        // in auto low shots are worth 1/3 point, high shots = 1pt
+                        ad.avgAutoFuel = (getRobot(1153).autoLowShots.avg + getRobot(t2).autoLowShots.avg + getRobot(t3).autoLowShots.avg) / 3 +
+                                (getRobot(1153).autoHighShots.avg + getRobot(t2).autoHighShots.avg + getRobot(t3).autoHighShots.avg);
+                        ad.avgTeleFuel = (getRobot(1153).lowShots.avg + getRobot(t2).lowShots.avg + getRobot(t3).lowShots.avg) / 9 +
+                                (getRobot(1153).autoHighShots.avg + getRobot(t2).autoHighShots.avg + getRobot(t3).autoHighShots.avg) / 3;
+                        ad.avgAutoGear = getRobot(1153).autoGears.avg + getRobot(t2).autoGears.avg + getRobot(t3).autoGears.avg;
+                        ad.avgTeleGear = getRobot(1153).teleGears.avg + getRobot(t2).teleGears.avg + getRobot(t3).teleGears.avg;
+                        ad.avgTeleClimb = getRobot(1153).climb.avg + getRobot(t2).climb.avg + getRobot(t3).climb.avg;
+
+                        ad.calcStrength();
+
+                        outputString = ad.robot1 + "," + ad.robot2 + "," + ad.robot3 + "," +
+                                String.format("%.2f,%.2f,%.2f,%.2f,%.2f,%.1f,",ad.avgAutoFuel,
+                                        ad.avgTeleFuel,
+                                        ad.avgAutoGear,
+                                        ad.avgTeleGear,
+                                        ad.avgTeleClimb,
+                                        ad.allianceStrength) + "\n";
+                        writer.write(outputString);
+
+                    }
+                }
+            }
+
+            writer.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     // check the robot list to see if we have a robot already with the given number
@@ -235,6 +304,32 @@ public class Main {
             }
         });
         // now loop through the lists and set the rank based on avg score
+        for (int c = 0; c < rankList.size(); c++) {
+            if (c > 0) {
+                int prev_rank = getRobot(rankList.get(c-1).robotNumber).autoLowShots.rank;
+                if (getRobot(rankList.get(c).robotNumber).autoLowShots.avg < getRobot(rankList.get(c-1).robotNumber).autoLowShots.avg) {
+                    getRobot(rankList.get(c).robotNumber).autoLowShots.rank = prev_rank + 1;
+                } else {
+                    getRobot(rankList.get(c).robotNumber).autoLowShots.rank = prev_rank;
+                }
+            } else {
+                getRobot(rankList.get(c).robotNumber).autoLowShots.rank = 1;
+            }
+        }
+
+        for (int c = 0; c < rankList.size(); c++) {
+            if (c > 0) {
+                int prev_rank = getRobot(rankList.get(c-1).robotNumber).autoHighShots.rank;
+                if (getRobot(rankList.get(c).robotNumber).autoHighShots.avg < getRobot(rankList.get(c-1).robotNumber).autoHighShots.avg) {
+                    getRobot(rankList.get(c).robotNumber).autoHighShots.rank = prev_rank + 1;
+                } else {
+                    getRobot(rankList.get(c).robotNumber).autoHighShots.rank = prev_rank;
+                }
+            } else {
+                getRobot(rankList.get(c).robotNumber).autoHighShots.rank = 1;
+            }
+        }
+
         for (int c = 0; c < rankList.size(); c++) {
             if (c > 0) {
                 int prev_rank = getRobot(rankList.get(c-1).robotNumber).lowShots.rank;
