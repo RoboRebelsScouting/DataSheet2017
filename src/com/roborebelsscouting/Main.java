@@ -13,6 +13,7 @@ public class Main {
     public static String dataSheetDir = userDir + File.separator + "Documents" + File.separator + "Datasheets";
     public Writer writer = null;
     public ArrayList<RobotData> robotList = new ArrayList<RobotData>();
+    public List<AllianceData> adList = new ArrayList<AllianceData>();
     public void createHeader(int robotNumber) {
         String outString = "<html>\n";
         outString += "<title>" + robotNumber + " " + "Robot Stats</title>\n";
@@ -205,12 +206,10 @@ public class Main {
         // write a csv of all possible combinations of alliances with us, team 1153
         List<Integer> teamList = new ArrayList<Integer>();
         for (RobotData r : robotList) {
-            if (r.robotNumber != 1153) {
-                teamList.add(r.robotNumber);
-            }
+            teamList.add(r.robotNumber);
         }
 
-        List<AllianceData> adList = new ArrayList<AllianceData>();
+
 
         try {
             String fileName = dataSheetDir + File.separator + "allianceData.csv";
@@ -224,35 +223,41 @@ public class Main {
             String outputString;
             writer.write("robot1,robot2,robot3,Average Auto Fuel,Average Tele Fuel, Average Auto Gear, Average Tele Gear, Average Tele Climb, Predicted Score\n");
 
-            for (Integer t2 : teamList) {
-                for (Integer t3 : teamList) {
-                    if (t3 != t2) {
-                        AllianceData ad = new AllianceData();
-                        ad.robot1 = 1153;
-                        ad.robot2 = t2;
-                        ad.robot3 = t3;
+            for (Integer t1 : teamList) {
+                for (Integer t2 : teamList) {
+                    if (t1 != t2) {
+                        for (Integer t3 : teamList) {
+                        if (t1 != t3 && t2 != t3) {
+                                AllianceData ad = new AllianceData();
+                                ad.robot1 = t1;
+                                ad.robot2 = t2;
+                                ad.robot3 = t3;
 
-                        // create the combined averages
-                        // in auto low shots are worth 1/3 point, high shots = 1pt
-                        ad.avgAutoFuel = (getRobot(1153).autoLowShots.avg + getRobot(t2).autoLowShots.avg + getRobot(t3).autoLowShots.avg) / 3 +
-                                (getRobot(1153).autoHighShots.avg + getRobot(t2).autoHighShots.avg + getRobot(t3).autoHighShots.avg);
-                        ad.avgTeleFuel = (getRobot(1153).lowShots.avg + getRobot(t2).lowShots.avg + getRobot(t3).lowShots.avg) / 9 +
-                                (getRobot(1153).autoHighShots.avg + getRobot(t2).autoHighShots.avg + getRobot(t3).autoHighShots.avg) / 3;
-                        ad.avgAutoGear = getRobot(1153).autoGears.avg + getRobot(t2).autoGears.avg + getRobot(t3).autoGears.avg;
-                        ad.avgTeleGear = getRobot(1153).teleGears.avg + getRobot(t2).teleGears.avg + getRobot(t3).teleGears.avg;
-                        ad.avgTeleClimb = getRobot(1153).climb.avg + getRobot(t2).climb.avg + getRobot(t3).climb.avg;
+                                // create the combined averages
+                                // in auto low shots are worth 1/3 point, high shots = 1pt
+                                ad.avgAutoFuel = (getRobot(t1).autoLowShots.avg + getRobot(t2).autoLowShots.avg + getRobot(t3).autoLowShots.avg) / 3 +
+                                        (getRobot(t1).autoHighShots.avg + getRobot(t2).autoHighShots.avg + getRobot(t3).autoHighShots.avg);
+                                ad.avgTeleFuel = (getRobot(t1).lowShots.avg + getRobot(t2).lowShots.avg + getRobot(t3).lowShots.avg) / 9 +
+                                        (getRobot(t1).autoHighShots.avg + getRobot(t2).autoHighShots.avg + getRobot(t3).autoHighShots.avg) / 3;
+                                ad.avgAutoGear = getRobot(t1).autoGears.avg + getRobot(t2).autoGears.avg + getRobot(t3).autoGears.avg;
+                                ad.avgTeleGear = getRobot(t1).teleGears.avg + getRobot(t2).teleGears.avg + getRobot(t3).teleGears.avg;
+                                ad.avgTeleClimb = getRobot(t1).climb.avg + getRobot(t2).climb.avg + getRobot(t3).climb.avg;
 
-                        ad.calcStrength();
+                                ad.calcStrength();
 
-                        outputString = ad.robot1 + "," + ad.robot2 + "," + ad.robot3 + "," +
-                                String.format("%.2f,%.2f,%.2f,%.2f,%.2f,%.1f,",ad.avgAutoFuel,
-                                        ad.avgTeleFuel,
-                                        ad.avgAutoGear,
-                                        ad.avgTeleGear,
-                                        ad.avgTeleClimb,
-                                        ad.allianceStrength) + "\n";
-                        writer.write(outputString);
+                                adList.add(ad);
 
+                                outputString = ad.robot1 + "," + ad.robot2 + "," + ad.robot3 + "," +
+                                        String.format("%.2f,%.2f,%.2f,%.2f,%.2f,%.1f,", ad.avgAutoFuel,
+                                                ad.avgTeleFuel,
+                                                ad.avgAutoGear,
+                                                ad.avgTeleGear,
+                                                ad.avgTeleClimb,
+                                                ad.allianceStrength) + "\n";
+                                writer.write(outputString);
+
+                            }
+                        }
                     }
                 }
             }
@@ -265,6 +270,33 @@ public class Main {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    // check to see if we already have an alliance with the three given robots
+    public boolean haveAlliance(int robot1, int robot2, int robot3) {
+        boolean haveRobot1;
+        boolean haveRobot2;
+        boolean haveRobot3;
+        for (AllianceData a : adList) {
+            haveRobot1 = false;
+            haveRobot2 = false;
+            haveRobot3 = false;
+            if (a.robot1 == robot1 || a.robot1 == robot2 || a.robot1 == robot3) {
+                haveRobot1 = true;
+            }
+            if (a.robot2 == robot1 || a.robot2 == robot2 || a.robot2 == robot3) {
+                haveRobot2 = true;
+            }
+            if (a.robot3 == robot1 || a.robot3 == robot2 || a.robot3 == robot3) {
+                haveRobot3 = true;
+            }
+
+            if (haveRobot1 && haveRobot2 && haveRobot3) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     // check the robot list to see if we have a robot already with the given number
